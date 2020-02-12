@@ -17,18 +17,11 @@ b=taui/tauQ;vQ2=D/tauQ;
 Xi=18;M=200;dxi=Xi/M;
 
 es = 5.5041e-04;
-
 n=N;
 k=(M/2)+1;
-
-
 Cov4 = zeros(M,1);
-Cov1 = zeros(1,L);
- 
-%I = 10;
 J = 10000000;
 
-    
 parfor q = 1:J
     
 F = zeros(M,N);
@@ -41,7 +34,7 @@ dW = sqrt(es*2*D/(dt*dxi))*randn(M,N);
 
 for e = L:-1:2
      
-   F(:,e-1) = F(:,e) - dx*(F(:,e)-dW(:,e))*b;   %necessary
+   F(:,e-1) = F(:,e) - dx*(F(:,e)-dW(:,e))*b;   
   
 end
 
@@ -50,7 +43,7 @@ Z = zeros(M,L);
 %SDE  Solver 
 for i = 3:1:L
     
-    x=(i*dx)+1;  %calculate the initial x
+    x=(i*dx)+1;  
     i0 = i-1;i2 = i+1;
     if i0 == 0 
             i0=L;
@@ -70,9 +63,6 @@ for i = 3:1:L
         Zdxidxi = (Z(u1,i)+Z(u0,i)-2*Z(j,i))/(dxi*dxi);
         fxi = (F(u1,i)-F(j,i))/(1.0*dxi);
         fxxi = (F(u1,i)+F(j,i0)-F(u1,i0)-F(j,i))/(dx*dxi);
-        
-        %comp1 = 1/dx;
-        %comp2 = Z(j,i)*(1/dx)+ Zdxidxi*(D/(x*taui*x)) - (fxi/x);
          
         comp1 = (1/dx)+((x*tauQ)/(dx^2*(taui*x+2*tauQ)));
         comp2 = Z(j,i)*((1/dx)+((2*x*tauQ)/(dx^2*(taui*x+2*tauQ)))) - Z(j,i0)*((x*tauQ)/(dx^2*(taui*x+2*tauQ))) + Zdxidxi*(D/(x*(taui*x+2*tauQ))) - fxi*((taui*x+tauQ)/(x*(taui*x+2*tauQ))) - fxxi*(tauQ/(taui*x+2*tauQ));
@@ -86,39 +76,13 @@ end
 
 Cov4 = Cov4 + (Z(k,n).*Z(:,n));
 
-%{
-Pro = Z(k,n);
-Mult1 = Pro.*Z(:,n);
-   
-   for m = 1:M
-       
-       Mult1(m,1)= Z(m,n)*Z(k,n);
-       %Mult1(m,1)= F(m,n)*F(k,n);
-   end
-   
-   Cov4 = Cov4 + Mult1; 
- %}
- %{  
- Mult = zeros(1,L); 
- for u = 1:L
-    Mult(1,u)= F(k,u)*F(k,L);
- end
- Cov1 = Cov1 + Mult(1,:);    
- %}  
 end
 
-
-Cov1=Cov1./(J);
 Cov4=Cov4./(J);
 
 z=taui:dt:T-dt;
 xi = -Xi/2:dxi:(Xi/2)-dxi;
 Cov = (sf^2).*Cov4;
-a1=chi*Tf/(tauf*sqrt(3.14*2.38));
-%y=a1*exp(-((xi+0.0)/1.55).^2);
-y = es*2*D/(2*tauQ*dxi)*exp(-(T-z)/tauQ);
-%saveas(gcf,'PeaksFile.fig')
-%save('Covpoint03.mat','Cov4')
 
 toc
 datestr(now,'HH:MM:SS')
